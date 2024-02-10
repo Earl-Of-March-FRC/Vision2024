@@ -56,14 +56,23 @@ while True:
         if tag_pose is None or target.getId() == 4:
             continue
 
-        r_x = tag_pose.x + estimate.x
-        r_the_other_axis = tag_pose.y + estimate.z
+        tag_rotation = tag_pose.rotation().z_degrees
+        perpendicular = tag_rotation + 90
+        raa_i_think = abs(180 - perpendicular)
+        true_angle = raa_i_think - estimate.rotation().y_degrees
+        hypotenuse = math.sqrt((estimate.translation().x ** 2) + (estimate.translation().z ** 2))
+        print(true_angle, hypotenuse, to_deg(math.cos(true_angle)), to_deg(math.sin(true_angle)))
+        x_offset = to_deg(math.cos(true_angle)) * hypotenuse
+        y_offset = to_deg(math.sin(true_angle)) * hypotenuse
+
+        r_x = tag_pose.x + x_offset
+        r_the_other_axis = tag_pose.y + y_offset
         # print(estimate)
 
         to_apriltag = tag_pose.translation().distance(estimate.translation())
         tag_to_origin = tag_pose.translation().distance(origin.translation())
         ro = estimate.rotation()
-        print(f"X: {round(ro.x_degrees, 2)} -- Y: {round(ro.y_degrees, 2)} -- Z: {round(ro.z_degrees, 2)}")
+        # print(f"X: {round(ro.x_degrees, 2)} -- Y: {round(ro.y_degrees, 2)} -- Z: {round(ro.z_degrees, 2)}")
         the_angle = to_deg(tag_pose.relativeTo(origin).rotation().angle)
 
         missing_side = math.sqrt((to_apriltag ** 2 + tag_to_origin ** 2) - (2 * tag_to_origin * to_apriltag * to_deg(math.cos(the_angle))))
