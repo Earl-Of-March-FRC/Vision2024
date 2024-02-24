@@ -41,7 +41,7 @@ def main():
             cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), thickness=5)
             distance = object_detector.calculate_distance_with_offset(w)
             horizontal_angle = object_detector.calculate_horizontal_angle(frame.shape[1], x + w / 2)
-            cv2.putText(frame, f"Distance to object: {distance:.2f} meters", (0, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            cv2.putText(frame, f"Distance to object: {distance:.2f} inches", (0, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             cv2.putText(frame, f"Horizontal Angle: {horizontal_angle:.2f} degrees", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         cv2.imshow("Cascade Detector", frame)
