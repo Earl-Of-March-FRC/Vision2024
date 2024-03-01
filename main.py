@@ -32,6 +32,9 @@ class ObjectDetector:
         return (lambda distance: distance / 25.4)((self.object_real_width * self.focal_length_x) / detection_width)
 
     def calculate_horizontal_angle(self, frame: MatLike, object_center_x: float) -> float:
+        """
+        https://stackoverflow.com/questions/55080775/opencv-calculate-angle-between-camera-and-object my beloved
+        """
         screen_center_x = frame.shape[1] / 2
         screen_center_y = frame.shape[0] / 2
 
