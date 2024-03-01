@@ -130,7 +130,7 @@ def main():
 
             cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (255, 255, 0), thickness=2)
 
-            distance = object_detector.calculate_distance_with_offset(frame.shape[1], w)
+            distance = object_detector.calculate_distance_with_offset(w)
             angle = object_detector.calculate_horizontal_angle(frame, x_center)
 
             ScreenItems.text_above(frame,f"Horizontal Angle: {angle:.2f} degrees", (255,255,0), 2, (x_left,y_top,w,h), 2)
