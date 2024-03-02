@@ -1,17 +1,24 @@
 from __future__ import annotations
 
 import cv2
+import logging
 import math
-import time
+# import time
 import numpy as np
+
+import ntcore
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
+
+from mjpeg_streamer import MjpegServer, Stream
 
 from typing import TypeVar, TYPE_CHECKING
 
 if TYPE_CHECKING:
     T = TypeVar("T")
     MatLike = np.ndarray[T]
+
+logging.basicConfig(level=logging.DEBUG)
 
 # THIS IS FOR MY OWN WEBCAM, REMEMBER TO CALIBRATE THE CAMERA AND REPLACE THIS
 cam_matrix = np.array([[658.86677309, 0, 324.01396488], [0, 658.59117981, 234.71600824], [0, 0, 1]])
@@ -96,32 +103,73 @@ class ScreenItems:
             lineType=cv2.LINE_AA
         )
 
-def main():
-    focal_length_x = 658.867 # in mm
-    object_real_width =  (lambda distance_in_inches: distance_in_inches * 25.4)(14.875) #in inches, does conversion to mm
-    model_path = "pretrained.pt"#-the-other-one.pt"
+class NetworkTable:
+    def __init__(self, *, instance: ntcore.NetworkTableInstance | None = None):
+        """
+        READ THIS: https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-networking.html
 
+        The robot is the server, therefore this script is the client, and so this table instance should be set up as such
+        """
+
+        self._inst = instance or ntcore.NetworkTableInstance.getDefault()
+        self._table = self._inst.getTable("vision")
+        self._distance = self._table.getDoubleTopic("distance").publish()
+        self._angle = self._table.getDoubleTopic("angle").publish()
+
+        self._inst.startClient4("vision client")
+        # self._inst.setServerTeam(7476, 0)
+        self._inst.setServer("10.74.76.227", port=ntcore.NetworkTableInstance.kDefaultPort4)
+
+    def send_data(self, distance: float, angle: float) -> None:
+        self._distance.set(distance)
+        self._angle.set(angle)
+        logging.debug("Angle: %.2f, Distance: %.2f", angle, distance)
+
+    def close(self):
+        self._inst.stopClient()
+
+    @property
+    def instance(self) -> ntcore.NetworkTableInstance:
+        return self._inst
+
+cap = cv2.VideoCapture(0)
+stream = Stream("driverfeed", size=(640, 480), quality=50, fps=30)
+server = MjpegServer("10.74.76.69", 8080)
+ntable = NetworkTable()
+
+def main():
+    focal_length_x = cam_matrix[0][0] # in mm
+    object_real_width =  (lambda distance_in_inches: distance_in_inches * 25.4)(14.875) #in inches, does conversion to mm
+
+    model_path = "pretrained.pt"
     object_detector = ObjectDetector(model_path, focal_length_x, object_real_width)
 
-    cap = cv2.VideoCapture(0)
+    server.add_stream(stream)
+    server.start()
 
-    fps = 0
-    frame_count = 0
+    # fps = 0
+    # frame_count = 0
 
     while True:
         ret, frame = cap.read()
-        # frame = frame[64:384, 0:frame.shape[1]]
-        frame = object_detector.cropped(frame, top_left_x=0, top_left_y=64, new_width=frame.shape[1], new_height=320)
+        if not ret:
+            logging.critical("COULD NOT READ FRAME")
+
+        stream.set_frame(frame)
+        frame = frame[288:480, 0:frame.shape[1]]
+        # frame = object_detector.cropped(frame, top_left_x=0, top_left_y=288, new_width=frame.shape[1], new_height=192)
 
         object_counter = 0
 
-        start = time.monotonic()
-        results: list[Results] = object_detector.model.predict(frame, imgsz=(640, 320), vid_stride=5, max_det=1)
-        end = time.monotonic()
+        # start = time.monotonic()
+        results: list[Results] = object_detector.model.predict(frame, imgsz=(640, 192), vid_stride=10, max_det=1, conf=0.2)
+        # results = []
+        # print("DIMENSIONS IS ", frame.shape)
+        # end = time.monotonic()
 
-        frame_count += 1
-        fps += 1/(end-start or 0.00001)
-        print("FRAMES PER SECOND --", fps / frame_count)
+        # frame_count += 1
+        # fps += 1/(end-start or 0.00001)
+        # print("FRAMES PER SECOND --", fps / frame_count)
 
         for result in results:
             # """
@@ -131,6 +179,7 @@ def main():
             except ValueError:
                 as_np = as_np[0].tolist()
             else:
+                ntable.send_data(-1, -1)
                 continue
 
             object_counter += 1
@@ -144,6 +193,8 @@ def main():
 
             distance = object_detector.calculate_distance_with_offset(w)
             angle = object_detector.calculate_horizontal_angle(frame, x_center)
+
+            ntable.send_data(distance, angle)
 
             ScreenItems.text_above(frame,f"Horizontal Angle: {angle:.2f} degrees", (255,255,0), 2, (x_left,y_top,w,h), 2)
             ScreenItems.text_above(frame,f"Object {object_counter}: Distance: {distance:.2f} in", (255,255,0), 1, (x_left,y_top,w,h), 2 )
@@ -163,8 +214,11 @@ def main():
         if cv2.waitKey(1) == ord("d"):
             break
 
-    cap.release()
-    cv2.destroyAllWindows()
-
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        server.stop()
+        ntable.close()
+        cap.release()
+        cv2.destroyAllWindows()
