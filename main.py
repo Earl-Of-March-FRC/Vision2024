@@ -21,7 +21,9 @@ if TYPE_CHECKING:
 logging.basicConfig(level=logging.DEBUG)
 
 # THIS IS FOR MY OWN WEBCAM, REMEMBER TO CALIBRATE THE CAMERA AND REPLACE THIS
-cam_matrix = np.array([[658.86677309, 0, 324.01396488], [0, 658.59117981, 234.71600824], [0, 0, 1]])
+cam_matrix = np.array([[508.13950658192897, 0, 315.83545490013387], 
+                       [0, 508.4437534984872, 244.77465580560457], 
+                       [0, 0, 1]])
 
 class ObjectDetector:
     def __init__(
@@ -39,12 +41,15 @@ class ObjectDetector:
     def calculate_distance_with_offset(self, detection_width: float) -> float:
         return (lambda distance: distance / 25.4)((self.object_real_width * self.focal_length_x) / detection_width)
 
-    def calculate_horizontal_angle(self, frame: MatLike, /, object_center_x: float) -> float:
+    def calculate_horizontal_angle(self, frame: MatLike, /, object_center_x: float, camera_offset: float) -> float:
         """
-        https://stackoverflow.com/questions/55080775/opencv-calculate-angle-between-camera-and-object my beloved
+        Calculate the horizontal angle between the camera and the object.
         """
         screen_center_x = frame.shape[1] / 2
         screen_center_y = frame.shape[0] / 2
+
+        # Adjust the object center x-coordinate based on camera offset
+        object_center_x -= camera_offset
 
         mat_inverted = np.linalg.inv(cam_matrix)
         vector1: MatLike = mat_inverted.dot((object_center_x, screen_center_y, 1.0))
@@ -56,6 +61,7 @@ class ObjectDetector:
             real_angle *= -1
 
         return real_angle
+
 
     def cropped(self, frame: MatLike, /, top_left_x: int, top_left_y: int, new_width: int, new_height: int) -> MatLike:
         return frame[top_left_y:top_left_y+new_height,top_left_x:top_left_x+new_width]
@@ -192,7 +198,7 @@ def main():
             cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (255, 255, 0), thickness=2)
 
             distance = object_detector.calculate_distance_with_offset(w)
-            angle = object_detector.calculate_horizontal_angle(frame, x_center)
+            angle = object_detector.calculate_horizontal_angle(frame, x_center, 0)
 
             ntable.send_data(distance, angle)
 
