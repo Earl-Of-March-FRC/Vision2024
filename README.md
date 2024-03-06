@@ -1,5 +1,5 @@
 
-# Vision Subteam Repository
+# EOM Vision Subteam Repository
 
 This repository contains the codebase for the Vision Subteam of FRC Lioneers. 
 
