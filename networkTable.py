@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.DEBUG)
 class NetworkTable:
     def __init__(self, *, instance: ntcore.NetworkTableInstance | None = None):
         """
-        READ THIS: https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-networking.html
+        READ THIS FOR MORE INFO: https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-networking.html
 
         The robot is the server, therefore this script is the client, and so this table instance should be set up as such
         """
