@@ -149,7 +149,7 @@ def main():
     object_real_width = (lambda distance_in_inches: distance_in_inches * 25.4)(14.875)  # in inches, conversion to mm
 
     # Initialization of ObjectDetector
-    model_path = "pretrained.pt"
+    model_path = "Vision2024\\pretrained.pt"
     object_detector = ObjectDetector(model_path, focal_length_x, object_real_width)
 
     # Add stream to server and start it
