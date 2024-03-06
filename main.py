@@ -162,7 +162,7 @@ def main():
             logging.critical("COULD NOT READ FRAME")
 
         stream.set_frame(frame)
-        frame = frame[288:480, 0:frame.shape[1]]
+        frame = frame[120:480, 0:frame.shape[1]]
         # frame = object_detector.cropped(frame, top_left_x=0, top_left_y=288, new_width=frame.shape[1], new_height=192)
 
         object_counter = 0
