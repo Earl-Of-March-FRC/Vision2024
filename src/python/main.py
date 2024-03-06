@@ -1,3 +1,11 @@
+"""
+Math explanation of angle and distance:
+
+Angle: The function first adjusts the object's position based on the camera's offset. Then, it uses linear algebra to transform the object's and screen's center coordinates into vectors in camera space. Finally, it calculates the angle between these vectors using the dot product and the arccosine function, taking into account the direction of the object relative to the screen's center.
+
+Distance: The function uses the principle of similar triangles, where the ratio of the object's real width to its detected width is proportional to the ratio of its distance from the camera to the focal length. By rearranging this proportionality, it computes the distance to the object by dividing the product of the real width and focal length by the detected width.
+""" 
+
 from __future__ import annotations
 
 import cv2
