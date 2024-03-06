@@ -197,7 +197,8 @@ def main():
             # Display distance and angle on the frame
             ScreenItems.text_above(frame,f"Horizontal Angle: {angle:.2f} degrees", (255,255,0), 2, (x_left,y_top,w,h), 2)
             ScreenItems.text_above(frame,f"Distance: {distance:.2f} in", (255,255,0), 1, (x_left,y_top,w,h), 2 )
-
+            
+            # Draw circle and line when object is on screen for easy angle and distance viewing
             cv2.circle(frame, (x_center, y_center), 1, (0, 255, 0), 2)
             cv2.line(frame, (frame.shape[1] // 2, 0), (frame.shape[1] // 2, frame.shape[0]), (0, 0, 255), 2)
 
