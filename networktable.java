@@ -15,7 +15,7 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem() {
         inst = NetworkTableInstance.getDefault();
         inst.startServer(); // Start the server on the Java side
-        inst.setServerTeam(9127, 0); // Set the team number
+        inst.setServerTeam(9127, 0); // Set the team number (could also be 7476)
 
         table = inst.getTable("vision"); // Updated table name
         distanceEntry = table.getEntry("distance");
