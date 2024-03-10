@@ -157,7 +157,7 @@ def main():
     object_real_width = (lambda distance_in_inches: distance_in_inches * 25.4)(14.875)  # in inches, conversion to mm
 
     # Initialization of ObjectDetector
-    model_path = "Vision2024\\pretrained.pt"
+    model_path = r'Vision2024\src\python\pretrained.pt'
     object_detector = ObjectDetector(model_path, focal_length_x, object_real_width)
 
     # Add stream to server and start it
@@ -192,12 +192,20 @@ def main():
             x_left = int(x_center - w / 2)
             y_top = int(y_center - h / 2)
 
-            # Draw rectangle around the detected object
-            cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (255, 255, 0), thickness=2)
-
             # Calculate distance and angle
             distance = object_detector.calculate_distance_with_offset(w)
             angle = object_detector.calculate_horizontal_angle(frame, x_center, 0)
+
+            # Draw rectangle around the detected object
+            if distance <= 240: # when less than 20 ft, it shows the object
+                if -10 <= angle <= 10:
+                    cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (0, 255, 0), thickness=2)  # Green
+                elif -15 <= angle <= 15:
+                    cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (0, 255, 255), thickness=2)  # Yellow
+                else:
+                    cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (0, 0, 255), thickness=2)  # Red
+
+
 
             # Send distance and angle data to NetworkTable
             ntable.send_data(distance, angle)
