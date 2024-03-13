@@ -160,8 +160,6 @@ server = MjpegServer("192.168.2.50", 8080)
 ntable = NetworkTable()
 
 def main():
-    global distance, angle
-
     # Calculation of focal length and object real width
     focal_length_x = CAM_MATRIX[0][0]  # in mm
     object_real_width = (lambda distance_in_inches: distance_in_inches * 25.4)(14.875)  # in inches, conversion to mm
@@ -237,7 +235,7 @@ def main():
 
 if __name__ == "__main__":
     server_thread = threading.Thread(target=start_server)
-    server_thread.daemon = True  # So the server thread is terminated when the main thread exits
+    server_thread.daemon = True 
     server_thread.start()
 
     try:

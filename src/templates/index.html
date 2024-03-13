@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOM LIONS DRIVER'S FEED</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #212121; 
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header styles */
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff; 
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Video stream styles */
+        #stream-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        #stream {
+            width: 100%; /* Ensure the image takes up the full width */
+            height: auto; 
+            object-fit: cover;
+            border-radius: 0px 0px 10px 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Object data styles */
+        #object-data {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #object-data p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #ccc; /* Medium text */
+        }
+
+        /* Bounding box color styles */
+        .box-description {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333; 
+            border-radius: 5px 5px 0px 0px;
+            animation: fadeIn 0.5s ease-in-out; /* Animation added */
+        }
+
+        .box-description li {
+            list-style-type: none;
+            margin-bottom: 10px;
+            color: #ccc; 
+            font-size: 1rem;
+        }
+
+        .box-description li span {
+            font-weight: bold;
+        }
+
+        .green-box {
+            color: #4caf50; /* Green */
+        }
+
+        .yellow-box {
+            color: #ffeb3b; /* Yellow */
+        }
+
+        .red-box {
+            color: #ff5722; /* Red */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EOM LIONS DRIVER'S FEED</h1>
+
+        <div id="object-data">
+            <p>Description of Bounding Box Colors:</p>
+            <div class="box-description">
+                <ul>
+                    <li><span class="green-box">Green:</span> Game piece is in front of robot</li>
+                    <li><span class="yellow-box">Yellow:</span> Game piece slightly off-robot</li>
+                    <li><span class="red-box">Red:</span> Game piece is far off-robot</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="stream-container">
+            <img src="http://192.168.2.50:8080/driverfeed" id="stream" alt="No Stream, Start 'main.py'"> 
+        </div>
+    </div>
+</body>
+</html>
