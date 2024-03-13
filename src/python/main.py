@@ -22,6 +22,9 @@ from networkTable import NetworkTable
 
 from mjpeg_streamer import MjpegServer, Stream
 
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+import threading
+
 if TYPE_CHECKING:
     T = TypeVar("T")
     MatLike = np.ndarray[T]
@@ -144,14 +147,21 @@ class ScreenItems:
             lineType=cv2.LINE_AA
         )
 
+def start_server():
+    server_address = ("", 5500)
+    httpd = HTTPServer(server_address, SimpleHTTPRequestHandler)
+    httpd.serve_forever()
+
 
 # Inital setup of video, server and network tables
 cap = cv2.VideoCapture(0)
-stream = Stream("driverfeed", size=(640, 480), quality=50, fps=30)
-server = MjpegServer("10.74.76.69", 8080)
+stream = Stream("driverfeed", size=(640, 480), quality=100, fps=30)
+server = MjpegServer("192.168.2.50", 8080)
 ntable = NetworkTable()
 
 def main():
+    global distance, angle
+
     # Calculation of focal length and object real width
     focal_length_x = CAM_MATRIX[0][0]  # in mm
     object_real_width = (lambda distance_in_inches: distance_in_inches * 25.4)(14.875)  # in inches, conversion to mm
@@ -170,8 +180,6 @@ def main():
         if not ret:
             logging.critical("COULD NOT READ FRAME")
 
-        # Set frame to the stream and crop it
-        stream.set_frame(frame)
         frame = frame[120:480, 0:frame.shape[1]]
 
         # Predict objects in the frame
@@ -205,8 +213,6 @@ def main():
                 else:
                     cv2.rectangle(frame, (x_left, y_top), (x_left+w, y_top+h), (0, 0, 255), thickness=2)  # Red
 
-
-
             # Send distance and angle data to NetworkTable
             ntable.send_data(distance, angle)
 
@@ -216,7 +222,11 @@ def main():
             
             # Draw circle and line when object is on screen for easy angle and distance viewing
             cv2.circle(frame, (x_center, y_center), 1, (0, 255, 0), 2)
-            cv2.line(frame, (frame.shape[1] // 2, 0), (frame.shape[1] // 2, frame.shape[0]), (0, 0, 255), 2)
+            # cv2.line(frame, (frame.shape[1] // 2, 0), (frame.shape[1] // 2, frame.shape[0]), (0, 0, 255), 2)
+
+        # Set stream size to match frame size
+        stream.size = (frame.shape[1], frame.shape[0])
+        stream.set_frame(frame)
 
         cv2.imshow("object detection", frame)
 
@@ -224,7 +234,12 @@ def main():
             break
 
 
+
 if __name__ == "__main__":
+    server_thread = threading.Thread(target=start_server)
+    server_thread.daemon = True  # So the server thread is terminated when the main thread exits
+    server_thread.start()
+
     try:
         main()
     finally:
@@ -232,3 +247,4 @@ if __name__ == "__main__":
         ntable.close()
         cap.release()
         cv2.destroyAllWindows()
+

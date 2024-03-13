@@ -1,4 +1,6 @@
+Here's the updated README.md file with the section added for accessing the HTML interface locally:
 
+```markdown
 # EOM Vision Subteam Repository
 
 This repository contains the codebase for the Vision Subteam of FRC Lioneers. 
@@ -30,6 +32,28 @@ git clone https://github.com/Earl-Of-March-FRC/Vision2024.git
 ```bash
 python main.py
 ```
+
+## Accessing the HTML Interface
+
+To access the HTML interface for viewing the vision feed, follow these steps:
+
+1. Make sure you have Python installed on your system.
+
+2. Navigate to the `Vision2024/src/python/templates/` directory in your terminal.
+
+3. Start a local server by running the following command:
+
+    ```bash
+    python -m http.server
+    ```
+
+4. Open a web browser and go to [http://localhost:8000/](http://localhost:8000/).
+
+5. Navigate to the `Vision2024/src/python/templates/` directory.
+
+6. Click on the HTML file to view the vision feed.
+
+Alternatively, you can customize the server configuration or use other methods to serve the HTML file as per your preference.
 
 ## Contributing
 
