@@ -156,7 +156,7 @@ def start_server():
 # Inital setup of video, server and network tables
 cap = cv2.VideoCapture(0)
 stream = Stream("driverfeed", size=(640, 480), quality=100, fps=30)
-server = MjpegServer("192.168.2.50", 8080)
+server = MjpegServer("10.178.169.228", 8080)
 ntable = NetworkTable()
 
 def main():
@@ -215,9 +215,10 @@ def main():
             ntable.send_data(distance, angle)
 
             # Display distance and angle on the frame
+            """
             ScreenItems.text_above(frame,f"Horizontal Angle: {angle:.2f} degrees", (255,255,0), 2, (x_left,y_top,w,h), 2)
             ScreenItems.text_above(frame,f"Distance: {distance:.2f} in", (255,255,0), 1, (x_left,y_top,w,h), 2 )
-            
+            """
             # Draw circle and line when object is on screen for easy angle and distance viewing
             cv2.circle(frame, (x_center, y_center), 1, (0, 255, 0), 2)
             # cv2.line(frame, (frame.shape[1] // 2, 0), (frame.shape[1] // 2, frame.shape[0]), (0, 0, 255), 2)
