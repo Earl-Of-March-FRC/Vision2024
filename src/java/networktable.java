@@ -36,4 +36,12 @@ public class VisionSubsystem extends SubsystemBase {
         // Get angle from NetworkTable
         return angleEntry.getDouble(-1.0); // Default value is -1.0 if entry is not found
     }
+
+    public boolean hasDistance() {
+        return (getDistance() < 0 ? false : true);
+    }
+
+    public boolean hasAngle() {
+        return (getAngle() < 0 ? false : true);
+    }
 }
